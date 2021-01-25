@@ -1,0 +1,13 @@
+version: '3.3'
+
+services:
+
+  kaldi:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: kaldi
+    tty: true 
+    restart: always
+    volumes:
+      - ./kaldi_data:/opt/

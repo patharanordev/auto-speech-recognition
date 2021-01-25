@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+
+  kaldi:
+    image: ubuntu:18.04
+    container_name: kaldi
+    tty: true 
+    restart: always
+    volumes:
+      - ./kaldi_data:/opt/
