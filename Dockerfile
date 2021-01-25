@@ -1,8 +1,6 @@
 FROM ubuntu:18.04
 LABEL maintainer="PatharaNor"
 
-WORKDIR /opt/kaldi
-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         g++ \
@@ -28,18 +26,9 @@ RUN apt-get update && \
 
 RUN ln -s /usr/bin/python3 /usr/bin/python
 
-RUN git clone https://github.com/kaldi-asr/kaldi.git /opt/kaldi
+WORKDIR /app
 
-RUN cd /opt/kaldi/tools && \
-    ./extras/install_mkl.sh && \
-    make
+COPY ./entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
-RUN cd /opt/kaldi/src && \
-    ./configure --shared && \
-    make depend && \
-    make
-    #     && \
-    #    find /opt/kaldi -type f \( -name "*.o" -o -name "*.la" -o -name "*.a" \) -exec rm {} \; && \
-    #    find /opt/intel -type f -name "*.a" -exec rm {} \; && \
-    #    find /opt/intel -type f -regex '.*\(_mc.?\|_mic\|_thread\|_ilp64\)\.so' -exec rm {} \; && \
-    #    rm -rf /opt/kaldi/.git
+CMD [ "sh", "entrypoint.sh" ]

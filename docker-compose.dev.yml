@@ -3,11 +3,11 @@ version: '3.3'
 services:
 
   kaldi:
+    container_name: kaldi
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: kaldi
-    tty: true 
-    restart: always
     volumes:
       - ./kaldi_data:/opt/
+    tty: true 
+    restart: always
