@@ -9,5 +9,5 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./kaldi_data:/opt/
-    tty: true 
+    tty: true
     restart: always
