@@ -63,10 +63,10 @@ $ docker exec -it kaldi /bin/sh
    - tri3b
    - tri4b
 
-Go to `/opt/kaldi/egs/YOUR_COMMON_VOICE_DIR` and run script `run.sh` :
+Go to `/opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5` and run script `run.sh` :
 
 ```bash
-$ bash run.sh
+$ cd /opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5 && bash run.sh
 ```
 
 ### **Evaluation**
@@ -100,13 +100,16 @@ $ cat /opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5/RESULTS
 ## **Challenge**
 
 Let's reduce `WER`, by training chain model in `/opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5/local/chain/`.
-### **Training Chain Model**
+
+### **GPU Base**
+
+**Training Chain Model**
 
 ```bash
 $ /opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5/local/chain/run_tdnn.sh --stage 0
 ```
 
-### **Evaluation**
+**Evaluation**
 
 ```bash
 $ cat slurm-xxx.out
