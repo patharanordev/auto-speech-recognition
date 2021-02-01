@@ -6,10 +6,30 @@
 
 ## **Preparing Environment**
 
-### **Setup Kaldi**
+### **Run Kaldi**
+
+**Docker container**
 
 ```bash
-$ sh build-base-linux.sh
+# For CPU
+$ sh run-cpu-container.sh
+
+# For GPU
+$ sh run-gpu-container.sh
+```
+
+**Docker Compose**
+
+```bash
+$ mkdir -p kaldi_data
+
+# CPU
+$ docker-compose -f docker-compose.cpu.yml down -v && \
+docker-compose -f docker-compose.cpu.yml up
+
+# GPU
+$ docker-compose -f docker-compose.gpu.yml down -v && \
+docker-compose -f docker-compose.gpu.yml up
 ```
 
 Let's check our service :
@@ -29,7 +49,7 @@ CONTAINER ID   IMAGE                           COMMAND                  CREATED 
 
 After setup `Kalbi`, it requires common voice from `Mozilla`, you need to download it and extract it into `./kaldi_data/kaldi/egs/YOUR_COMMON_VOICE_DIR`.
 
-### **Preparing Data for Training**
+### **Access to the container**
 
 This step, you need to access to the service via `docker` command :
 
@@ -71,30 +91,36 @@ $ cd /opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5 && bash run.sh
 
 ### **Evaluation**
 
+[optional] Create shell script to print result out to `RESULT_{number}`:
+
+```sh
+# Ex. result.sh
+
+rm -rf "RESULT_$1"
+
+for x in exp/*/decode*; do [ -d $x ] && grep WER $x/wer_* | utils/best_wer.sh >> "RESULT_$1" ; done
+for x in exp/chain/*/decode*; do [ -d $x ] && grep WER $x/wer_* | utils/best_wer.sh >> "RESULT_$1" ; done
+```
+
+Run script :
+
 ```bash
-$ cat /opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5/RESULTS
+$ bash result.sh 1
 
-#cv-corpus-6.1-2020-12-11_th
-# monophone system
-# monophone system (shortest 10k)
-%WER 66.85 [ 10618 / 15883, 737 ins, 1987 del, 7894 sub ] exp/mono/decode_valid_dev/wer_9_0.0
-# delta + delta-delta triphone system (20k)
-%WER 59.46 [ 9444 / 15883, 674 ins, 1757 del, 7013 sub ] exp/tri1/decode_valid_dev/wer_17_0.0
-# LDA+MLLT system (20k)
-%WER 58.98 [ 9367 / 15883, 767 ins, 1588 del, 7012 sub ] exp/tri2b/decode_valid_dev/wer_17_0.5
-# LDA+MLLT+SAT system (20k)
-%WER 58.49 [ 9290 / 15883, 780 ins, 1609 del, 6901 sub ] exp/tri3b/decode_valid_dev/wer_17_0.5
-%WER 59.20 [ 9403 / 15883, 1052 ins, 1198 del, 7153 sub ] exp/tri3b/decode_valid_dev.si/wer_17_0.0
-# LDA+MLLT+SAT system trained on entire training set
-%WER 63.87 [ 10144 / 15883, 897 ins, 1770 del, 7477 sub ] exp/tri4b/decode_valid_dev/wer_17_0.5
-%WER 63.64 [ 10108 / 15883, 1022 ins, 1551 del, 7535 sub ] exp/tri4b/decode_valid_dev.si/wer_17_0.5
+# Output in RESULT_1 file:
+%WER 66.73 [ 10598 / 15883, 750 ins, 2025 del, 7823 sub ] exp/mono/decode_valid_dev/wer_9_0.0
+%WER 59.52 [ 9453 / 15883, 787 ins, 1569 del, 7097 sub ] exp/tri1/decode_valid_dev/wer_15_0.0
+%WER 59.40 [ 9434 / 15883, 985 ins, 1319 del, 7130 sub ] exp/tri2b/decode_valid_dev/wer_17_0.0
+%WER 59.23 [ 9407 / 15883, 836 ins, 1529 del, 7042 sub ] exp/tri3b/decode_valid_dev/wer_17_0.5
+%WER 59.76 [ 9492 / 15883, 1084 ins, 1181 del, 7227 sub ] exp/tri3b/decode_valid_dev.si/wer_17_0.0
+%WER 58.96 [ 9364 / 15883, 796 ins, 1560 del, 7008 sub ] exp/tri4b/decode_valid_dev/wer_17_0.5
+%WER 59.10 [ 9387 / 15883, 1000 ins, 1215 del, 7172 sub ] exp/tri4b/decode_valid_dev.si/wer_17_0.0
+```
 
-# chain tdnn system
-%WER 48.25 [ 7663 / 15883, 696 ins, 1499 del, 5468 sub ] exp/chain/tdnn1a_sp/decode_valid_dev/wer_13_0.0
-%WER 49.78 [ 9183 / 18448, 725 ins, 1904 del, 6554 sub ] exp/chain/tdnn1a_sp/decode_valid_test/wer_13_0.5
+### **Training Chain Model (CPU)**
 
-%WER 47.88 [ 7605 / 15883, 707 ins, 1436 del, 5462 sub ] exp/chain/tdnn1a_sp_online/decode_valid_dev/wer_13_0.0
-%WER 49.05 [ 9048 / 18448, 753 ins, 1859 del, 6436 sub ] exp/chain/tdnn1a_sp_online/decode_valid_test/wer_15_0.0
+```bash
+$ /opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5/local/chain/run_tdnn_cpu.sh
 ```
 
 ## **Challenge**
@@ -113,4 +139,12 @@ $ /opt/kaldi/egs/YOUR_COMMON_VOICE_DIR/s5/local/chain/run_tdnn.sh --stage 0
 
 ```bash
 $ cat slurm-xxx.out
+```
+
+## **Contributing**
+
+**GPU**
+
+```bash
+$ docker build -f Dockerfile.gpu -t patharanor/kaldi-tf-gpu:0.0.1 .
 ```
